@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "132147122480",
+    "project_id": "austhivenet1",
+    "storage_bucket": "austhivenet1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132147122480:android:947118bccbf87d895278f5",
+        "android_client_info": {
+          "package_name": "com.example.aust_hivenet1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOrClcaTEmyA-8wZHcQ0vpTDQHo6qjM4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
