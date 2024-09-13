@@ -1,29 +1,102 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class AUSTidc extends StatelessWidget {
+class AUSTidc extends StatefulWidget {
+  @override
+  State<AUSTidc> createState() => _AUSTidcState();
+}
+
+class _AUSTidcState extends State<AUSTidc> {
+  List<Map<String, String>> _products = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      QuerySnapshot qn = await FirebaseFirestore.instance.collection("AustIDC").get();
+      setState(() {
+        for (var doc in qn.docs) {
+          _products.add({
+            "img": doc["img"],
+            "title": doc["title"],
+          });
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching products: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("AUST Invention And Design Club"),
-        backgroundColor: Colors.green, // Customize the color
+        title: Text("AUST IDC"),
+        backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              // Handle notifications
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: SafeArea(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : GridView.builder(
+          scrollDirection: Axis.vertical,
+          itemCount: _products.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1, childAspectRatio: 1),
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 2,
+              child: Column(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 2,
+                    child: Image.network(_products[index]["img"]!),
+                  ),
+                  SizedBox(height: 20),
+                  Text(_products[index]["title"]!),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            // Add your club logo image here
-            Image.asset('assets/images/HiveNet.png'), // Replace with your image asset
-            Image.asset('assets/professional.png'), // Replace with your image asset
-            Image.asset('assets/important_Notice.png'),
-            Image.asset('assets/Club_Activity.png'),
-            // Add a carousel widget for multiple club images
-            // Example: carousel_slider package
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
 
-            // Add club information (description, contact details, etc.)
-            // Example: Text widgets with relevant information
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.message),
+              onPressed: () {
 
-            // Add a section for club news (list of articles)
-            // Example: ListView.builder with news articles
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.notification_important),
+              onPressed: () {
+
+              },
+            ),
           ],
         ),
       ),

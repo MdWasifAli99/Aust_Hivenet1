@@ -1,6 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class EEE_society extends StatelessWidget {
+class EEE_society extends StatefulWidget {
+  @override
+  State<EEE_society> createState() => _EEE_societyState();
+}
+
+class _EEE_societyState extends State<EEE_society> {
+  List<Map<String, String>> _products = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      QuerySnapshot qn = await FirebaseFirestore.instance.collection("EEE Dept").get();
+      setState(() {
+        for (var doc in qn.docs) {
+          _products.add({
+            "img": doc["img"],
+            "title": doc["title"],
+          });
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching products: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,53 +46,33 @@ class EEE_society extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
-
+              // Handle notifications
             },
           ),
-        ],// Customize the color
+        ],
       ),
-      body: SingleChildScrollView(
-        child:Container(
-          color: Colors.lightGreen[100],
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  child: Image.asset('assets/images/HiveNet.png'),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Welcome to AUST EEE Society',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : GridView.builder(
+          scrollDirection: Axis.vertical,
+          itemCount: _products.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1, childAspectRatio: 1),
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 2,
+              child: Column(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 2,
+                    child: Image.network(_products[index]["img"]!),
                   ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Department of  Electrical and Electronic Engineering',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                      'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
+                  SizedBox(height: 20),
+                  Text(_products[index]["title"]!),
+                ],
+              ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: BottomAppBar(

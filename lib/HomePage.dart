@@ -3,8 +3,11 @@ import 'package:aust_hivenet1/AUSTrobotics.dart';
 import 'package:aust_hivenet1/CSE_society.dart';
 import 'package:aust_hivenet1/EEE_society.dart';
 import 'package:aust_hivenet1/NewsfeedPage.dart';
+import 'package:aust_hivenet1/profile.dart';
 import 'package:aust_hivenet1/signUpPage.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -14,8 +17,36 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  final FirebaseFirestore _firestoreInstance = FirebaseFirestore.instance;
+
+  
   List todoList = [];
   String singlevalue = "";
+  List<String> imageUrls = [];
+  List<String> _carouselImages= [];
+
+  void initState() {
+
+    fetchCarouselImages();
+    super.initState();
+  }
+
+  fetchCarouselImages() async {
+    try {
+      QuerySnapshot qn = await _firestoreInstance.collection("slider").get();
+      setState(() {
+        for (var doc in qn.docs) {
+          _carouselImages.add(doc["path"]);
+
+        }
+      });
+
+    } catch (e) {
+      print("Error fetching carousel images: $e");
+    }
+
+  }
+
 
   addString(content) {
     setState(() {
@@ -48,6 +79,29 @@ class _HomePageState extends State<HomePage> {
         margin: EdgeInsets.all(10),
         child: Column(
           children: [
+            AspectRatio(
+              aspectRatio: 3.5,
+              child: CarouselSlider(
+                  items: _carouselImages.map<Widget>((item) => Padding(
+                    padding: const EdgeInsets.only(left: 3, right: 3),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: NetworkImage(item),
+                              fit: BoxFit.fitWidth)),
+                    ),
+                  ))
+                      .toList(),
+                  options: CarouselOptions(
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      viewportFraction: 0.8,
+                      enlargeStrategy: CenterPageEnlargeStrategy.height,
+                      onPageChanged: (val, carouselPageChangedReason) {
+
+                      })),
+            ),
+
             Expanded(
               flex: 90,
               child: ListView.builder(
@@ -231,7 +285,7 @@ class _HomePageState extends State<HomePage> {
               title: const Text(' Edit Profile '),
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomePage()));
+                    MaterialPageRoute(builder: (context) => profile()));
 
               },
             ),

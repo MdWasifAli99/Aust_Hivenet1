@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home:CSE_society(),
+      home:loginPage(),
     );
   }
 }

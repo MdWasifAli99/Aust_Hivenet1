@@ -1,9 +1,12 @@
+import 'package:aust_hivenet1/HomePage.dart';
 import 'package:aust_hivenet1/loginPage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:aust_hivenet1/startingPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class signUp extends StatefulWidget{
   @override
@@ -88,21 +91,35 @@ class _signUpState extends State<signUp> {
                     child: ElevatedButton(
                       child: Text( 'Sign Up ', style: TextStyle(color: Colors.green, fontSize: 30,fontWeight: FontWeight.bold),
                       ),
-                      onPressed: () async {
+                      onPressed: () async{
                         try {
-                          final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                              email: emailcontroller.text.toString(),
-                              password: passwordcontroller.text.toString(),
+                          UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                              email: emailcontroller.text,
+                              password: passwordcontroller.text
                           );
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-not-found') {
-                            print('No user found for that email.');
-                          } else if (e.code == 'wrong-password') {
-                            print('Wrong password provided for that user.');
+                          var authCredential = userCredential.user;
+                          print(authCredential!.uid);
+                          if(authCredential.uid.isNotEmpty){
+                            Navigator.push(context, CupertinoPageRoute(builder: (_)=>HomePage()));
                           }
+                          else{
+                            Fluttertoast.showToast(msg: "Something is wrong");
+                          }
+
+                        } on FirebaseAuthException catch (e) {
+                          if (e.code == 'weak-password') {
+                            Fluttertoast.showToast(msg: "The password provided is too weak.");
+
+                          } else if (e.code == 'email-already-in-use') {
+                            Fluttertoast.showToast(msg: "The account already exists for that email.");
+
+                          }
+                        } catch (e) {
+                          print(e);
                         }
-                      },
-          
+                      }
+
+
                     ),
                   ),
                 ),
@@ -114,7 +131,7 @@ class _signUpState extends State<signUp> {
           
                         Padding(
                           padding: const EdgeInsets.only(left: 50,top: 100),
-                          child: Text('Dont have an account? ', style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                          child: Text('Already have an account?', style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                         ),
           
                         Padding(
